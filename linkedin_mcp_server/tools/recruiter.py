@@ -358,7 +358,8 @@ def register_recruiter_tools(mcp: FastMCP) -> None:
     async def get_applicants_with_contact(
         job_id: str,
         max_applicants: int = 20,
-        delay_seconds: float = 0.5
+        delay_seconds: float = 0.5,
+        rating_filter: str = "GOOD_FIT"
     ) -> Dict[str, Any]:
         """
         Get applicants with their contact info directly from the LinkedIn hiring page.
@@ -371,6 +372,7 @@ def register_recruiter_tools(mcp: FastMCP) -> None:
             job_id (str): LinkedIn job ID (e.g., "4325022456")
             max_applicants (int): Maximum number of applicants to process (default: 50)
             delay_seconds (float): Delay between processing each applicant (default: 1.5)
+            rating_filter (str): Filter by rating - "GOOD_FIT" (Top fit), "MAYBE", "NOT_A_FIT", or "ALL" for no filter
 
         Returns:
             Dict[str, Any]: Contains job_id, total_found, and list of applicants with contact info
@@ -382,8 +384,11 @@ def register_recruiter_tools(mcp: FastMCP) -> None:
             applicants_with_contact = []
             processed_names = set()
 
-            # Navigate to the hiring applicants page
-            url = f"https://www.linkedin.com/hiring/applicants/?jobId={job_id}"
+            # Navigate to the hiring applicants page with rating filter
+            if rating_filter and rating_filter.upper() != "ALL":
+                url = f"https://www.linkedin.com/hiring/applicants/?jobId={job_id}&rating={rating_filter.upper()}"
+            else:
+                url = f"https://www.linkedin.com/hiring/applicants/?jobId={job_id}"
             logger.info(f"Navigating to: {url}")
             driver.get(url)
             time.sleep(4)  # Wait for page load
